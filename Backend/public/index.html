@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Annexure Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        #loading {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Investment Annexure Generator</h1>
+    <div class="form-container">
+        <div class="form-group full-width">
+            <h2>Investor Details</h2>
+        </div>
+        
+        <div class="form-group">
+            <label for="investorName">Investor Name (निवेशक का नाम):</label>
+            <input type="text" id="investorName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="investorId">Investor ID (निवेशक आईडी):</label>
+            <input type="text" id="investorId" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="panAadhaar">PAN/Aadhaar (पैन/आधार):</label>
+            <input type="text" id="panAadhaar" required>
+        </div>
+
+        <div class="form-group full-width">
+            <h2>Property Details (संपत्ति का विवरण)</h2>
+        </div>
+        
+        <div class="form-group">
+            <label for="propertyId">Property ID (संपत्ति आईडी):</label>
+            <input type="text" id="propertyId" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="propertyName">Property Name (संपत्ति का नाम):</label>
+            <input type="text" id="propertyName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="propertyType">Property Type (संपत्ति का प्रकार):</label>
+            <input type="text" id="propertyType" required>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="propertyAddress">Address (पता):</label>
+            <input type="text" id="propertyAddress" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="cityState">City/State (शहर/राज्य):</label>
+            <input type="text" id="cityState" required>
+        </div>
+
+        <div class="form-group full-width">
+            <h2>LLP Details (LLP का विवरण)</h2>
+        </div>
+        
+        <div class="form-group">
+            <label for="llpName">LLP Name (LLP का नाम):</label>
+            <input type="text" id="llpName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="llpin">LLPIN:</label>
+            <input type="text" id="llpin" required>
+        </div>
+
+        <div class="form-group full-width">
+            <h2>Investment Details (निवेश विवरण)</h2>
+        </div>
+        
+        <div class="form-group">
+            <label for="totalValuation">Total Valuation (कुल मूल्यांकन):</label>
+            <input type="text" id="totalValuation" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="totalTokens">Total Tokens (कुल टोकन):</label>
+            <input type="text" id="totalTokens" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="investorTokens">Investor Tokens (निवेशक के टोकन):</label>
+            <input type="text" id="investorTokens" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="investAmount">Investment Amount (निवेश राशि):</label>
+            <input type="text" id="investAmount" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="date">Date (तारीख):</label>
+            <input type="date" id="date" required>
+        </div>
+    </div>
+
+    <div class="form-group" style="margin-top: 20px;">
+        <button onclick="generateAnnexure()">Generate Annexure (अनुलग्नक जनरेट करें)</button>
+    </div>
+
+    <div id="loading">
+        <p>Generating PDF, please wait...</p>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+
+        async function generateAnnexure() {
+            const formData = {
+                investorName: document.getElementById('investorName').value,
+                investorId: document.getElementById('investorId').value,
+                panAadhaar: document.getElementById('panAadhaar').value,
+                propertyId: document.getElementById('propertyId').value,
+                propertyName: document.getElementById('propertyName').value,
+                propertyType: document.getElementById('propertyType').value,
+                propertyAddress: document.getElementById('propertyAddress').value,
+                cityState: document.getElementById('cityState').value,
+                llpName: document.getElementById('llpName').value,
+                llpin: document.getElementById('llpin').value,
+                totalValuation: document.getElementById('totalValuation').value,
+                totalTokens: document.getElementById('totalTokens').value,
+                investorTokens: document.getElementById('investorTokens').value,
+                investAmount: document.getElementById('investAmount').value,
+                date: document.getElementById('date').value
+            };
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/generate-annexure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to generate PDF');
+                }
+
+                // Get the PDF blob
+                const blob = await response.blob();
+                
+                // Create a download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Annexure_${formData.investorName.replace(/\s+/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating PDF: ' + error.message);
+            } finally {
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+   
+   </script>
+</body>
+</html>

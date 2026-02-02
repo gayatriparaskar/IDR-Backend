@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - IDR Backend</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="bg-gray-800 text-white w-64 flex-shrink-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold">IDR Admin</h1>
+                <p class="text-gray-400 text-sm">Investment Annexure System</p>
+            </div>
+            <nav class="mt-4">
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-white bg-gray-700">
+                    <i class="fas fa-tachometer-alt w-6"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/queries" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700">
+                    <i class="fas fa-envelope w-6"></i>
+                    <span>Queries</span>
+                    <span id="newQueriesBadge" class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1 hidden">0</span>
+                </a>
+                <a href="/admin/annexures" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700">
+                    <i class="fas fa-file-pdf w-6"></i>
+                    <span>Annexures</span>
+                </a>
+                <a href="/admin/users" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700">
+                    <i class="fas fa-users w-6"></i>
+                    <span>Users</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700">
+                    <i class="fas fa-cog w-6"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow">
+                <div class="flex justify-between items-center p-4">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700 mr-4 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold">Dashboard</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="notificationsBtn" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://via.placeholder.com/40" alt="Admin" class="h-8 w-8 rounded-full">
+                            <span class="ml-2">Admin</span>
+                            <button id="userMenuBtn" class="ml-2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Annexures</p>
+                                <h3 class="text-2xl font-bold" id="totalAnnexures">0</h3>
+                                <p class="text-green-500 text-sm mt-1">+12% from last month</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-file-pdf text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">New Queries</p>
+                                <h3 class="text-2xl font-bold" id="newQueries">0</h3>
+                                <p class="text-red-500 text-sm mt-1">+5 new today</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-envelope text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Active Users</p>
+                                <h3 class="text-2xl font-bold" id="activeUsers">0</h3>
+                                <p class="text-green-500 text-sm mt-1">+3 this week</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-users text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Revenue</p>
+                                <h3 class="text-2xl font-bold" id="totalRevenue">₹0</h3>
+                                <p class="text-green-500 text-sm mt-1">+8% from last month</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-rupee-sign text-yellow-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity and Quick Stats -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Recent Activity</h3>
+                            <a href="#" class="text-blue-500 text-sm">View All</a>
+                        </div>
+                        <div class="space-y-4" id="recentActivity">
+                            <!-- Activity items will be added here -->
+                            <div class="flex items-start border-b pb-3">
+                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-file-pdf text-blue-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm">New annexure generated by John Doe</p>
+                                    <p class="text-xs text-gray-500">2 minutes ago</p>
+                                </div>
+                            </div>
+                            <!-- More activity items... -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Quick Stats</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Annexures This Month</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-blue-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <p class="text-right text-sm mt-1">75% of target</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Query Response Time</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                </div>
+                                <p class="text-right text-sm mt-1">Avg. 2 hours</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">System Health</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 95%"></div>
+                                </div>
+                                <p class="text-right text-sm mt-1">All systems operational</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Annexures Table -->
+                <div class="bg-white rounded-lg shadow mt-6 overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Recent Annexures</h3>
+                            <a href="/admin/annexures" class="text-blue-500 text-sm">View All</a>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th class="px-6 py-3">Investor</th>
+                                        <th class="px-6 py-3">Property</th>
+                                        <th class="px-6 py-3">Amount</th>
+                                        <th class="px-6 py-3">Date</th>
+                                        <th class="px-6 py-3">Status</th>
+                                        <th class="px-6 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="recentAnnexures">
+                                    <!-- Annexure rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Notifications Panel (Hidden by default) -->
+        <div id="notificationsPanel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-semibold">Notifications</h3>
+                <button id="closeNotifications" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto h-full">
+                <!-- Notification items will be added here -->
+                <div class="p-4 border-b hover:bg-gray-50 cursor-pointer">
+                    <p class="text-sm">New query from John Doe</p>
+                    <p class="text-xs text-gray-500">2 minutes ago</p>
+                </div>
+                <!-- More notifications... -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.querySelector('.w-64').classList.toggle('hidden');
+        });
+
+        // Toggle notifications panel
+        document.getElementById('notificationsBtn').addEventListener('click', function() {
+            document.getElementById('notificationsPanel').classList.toggle('translate-x-full');
+        });
+
+        document.getElementById('closeNotifications').addEventListener('click', function() {
+            document.getElementById('notificationsPanel').classList.add('translate-x-full');
+        });
+
+        // Fetch dashboard data
+        async function fetchDashboardData() {
+            try {
+                // In a real app, you would fetch this data from your API
+                // const response = await fetch('/api/dashboard/stats');
+                // const data = await response.json();
+                
+                // For demo purposes, we'll use mock data
+                const mockData = {
+                    totalAnnexures: 1245,
+                    newQueries: 12,
+                    activeUsers: 42,
+                    totalRevenue: '1,24,560'
+                };
+
+                // Update the UI with the data
+                document.getElementById('totalAnnexures').textContent = mockData.totalAnnexures.toLocaleString();
+                document.getElementById('newQueries').textContent = mockData.newQueries;
+                document.getElementById('activeUsers').textContent = mockData.activeUsers;
+                document.getElementById('totalRevenue').textContent = `₹${mockData.totalRevenue}`;
+                
+                // Update the new queries badge
+                if (mockData.newQueries > 0) {
+                    document.getElementById('newQueriesBadge').classList.remove('hidden');
+                    document.getElementById('newQueriesBadge').textContent = mockData.newQueries;
+                }
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchDashboardData();
+            
+            // Set up any other event listeners or initialization code here
+        });
+    </script>
+</body>
+</html>
