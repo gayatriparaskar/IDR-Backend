@@ -17,9 +17,8 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ["*"], // frontend URL
+  origin: ['http://localhost:8081','https://idr-backend-1.onrender.com'], // frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
 }));
 
 app.use(express.json());
