@@ -3,7 +3,7 @@ const router = express.Router();
 const { check } = require('express-validator');
 const multer = require('multer');
 const path = require('fs');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/authMiddleware');
 const {
     createProperty,
     getProperties,

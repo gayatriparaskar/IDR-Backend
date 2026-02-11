@@ -13,7 +13,7 @@ const {
     updateStatusValidation,
     respondToQueryValidation
 } = require('../middleware/validators/queryValidators');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 // Public routes
 router.post('/', createQueryValidation, createQuery);

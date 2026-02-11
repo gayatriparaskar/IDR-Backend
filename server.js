@@ -9,6 +9,9 @@ const connectDB = require('./config/database');
 const queryRoutes = require('./routes/queryRoutes');
 const teamMemberRoutes = require('./routes/teamMemberRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
+const blogRouter = require('./routes/blogRoutes');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 // Initialize Express app
 const app = express();
 
@@ -17,7 +20,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8081','https://idr-backend-1.onrender.com'], // frontend URL
+  origin: ['http://localhost:8080','https://idr-backend-1.onrender.com','http://localhost:3000'], // frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
@@ -42,6 +45,9 @@ app.use('/api', require('./routes/api'));
 app.use('/api/queries', queryRoutes);
 app.use('/api/team-members', teamMemberRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/blogs', blogRouter);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 // Serve frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
