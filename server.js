@@ -19,10 +19,7 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors({
-  origin: ['http://localhost:8080','https://idr-backend-1.onrender.com','http://localhost:3000'], // frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"],
-}));
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
