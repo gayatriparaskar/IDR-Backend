@@ -12,6 +12,9 @@ const propertyRoutes = require('./routes/propertyRoutes');
 const blogRouter = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const contentRoutes = require('./routes/contentRoutes');
+const aadharBlogRoutes = require('./routes/AadharBlogRoutes');
+const eSignRoutes = require('./routes/eSignRoutes');
 // Initialize Express app
 const app = express();
 
@@ -37,6 +40,9 @@ const propertyUploadsDir = path.join(__dirname, 'public', 'uploads', 'properties
         fs.mkdirSync(dir, { recursive: true });
     }
 });
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // API Routes
 app.use('/api', require('./routes/api'));
 app.use('/api/queries', queryRoutes);
@@ -45,6 +51,10 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/blogs', blogRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/aadharBlog',aadharBlogRoutes);
+app.use('/api/e-sign', eSignRoutes);
+
 // Serve frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

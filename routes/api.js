@@ -5,6 +5,7 @@ const {
   generateAnnexure,
   downloadAnnexure
 } = require('../controllers/annexureController');
+const contentRoutes = require('./contentRoutes');
 
 // @route   POST /api/generate-annexure
 // @desc    Generate annexure PDF

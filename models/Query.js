@@ -19,18 +19,26 @@ const querySchema = new mongoose.Schema({
     },
     subject: {
         type: String,
-        required: [true, 'Subject is required'],
+        required: [false, 'Subject is required'],
         trim: true
     },
+
     message: {
         type: String,
         required: [true, 'Message is required'],
         trim: true
     },
-    status: {
+    currentStatus: {
         type: String,
         enum: ['new', 'in_progress', 'resolved', 'spam'],
         default: 'new'
+    },
+    updatedStatus:{
+        type:String,
+        enum:['new', 'in_progress', 'resolved', 'spam']
+    },
+    resolveMessage:{
+        type:String
     },
     response: {
         message: String,

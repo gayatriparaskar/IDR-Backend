@@ -1,4 +1,4 @@
-const Blog = require('../models/blogModal');
+const Blog = require('../models/AadharBlog');
 const asyncHandler = require('express-async-handler');
 const path = require('path');
 const fs = require('fs');

@@ -30,16 +30,16 @@ exports.createQuery = async (req, res, next) => {
 // @access  Private/Admin
 exports.getQueries = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const search = req.query.search || '';
-        const status = req.query.status || '';
+        // const page = parseInt(req.query.page) || 1;
+        // const limit = parseInt(req.query.limit) || 10;
+        // const search = req.query.search || '';
+        // const status = req.query.status || '';
 
-        const result = await Query.getPaginatedQueries(page, limit, search, status);
+        const queries = await Query.find();
 
         res.status(200).json({
             success: true,
-            ...result
+            data: queries
         });
     } catch (error) {
         next(error);
@@ -74,11 +74,28 @@ exports.getQuery = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateQueryStatus = async (req, res, next) => {
     try {
-        const { status } = req.body;
+        const { currentStatus, updatedStatus, resolveMessage } = req.body;
+        
+        const updateData = {};
+        
+        // Update currentStatus if provided
+        if (currentStatus) {
+            updateData.currentStatus = currentStatus;
+        }
+        
+        // Update updatedStatus if provided
+        if (updatedStatus) {
+            updateData.updatedStatus = updatedStatus;
+        }
+        
+        // Update resolveMessage if provided
+        if (resolveMessage) {
+            updateData.resolveMessage = resolveMessage;
+        }
         
         const query = await Query.findByIdAndUpdate(
             req.params.id,
-            { status },
+            updateData,
             { new: true, runValidators: true }
         );
 

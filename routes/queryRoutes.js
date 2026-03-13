@@ -24,7 +24,7 @@ router.post('/', createQueryValidation, createQuery);
 
 router.get('/', getQueries);
 router.get('/:id', getQuery);
-router.put('/:id/status', updateStatusValidation, updateQueryStatus);
+router.put('/:id', updateStatusValidation, updateQueryStatus);
 router.post('/:id/respond', respondToQueryValidation, respondToQuery);
 router.delete('/:id', deleteQuery);
 

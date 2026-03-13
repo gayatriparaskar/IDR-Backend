@@ -11,7 +11,7 @@ const {
     getRelatedBlogs,
     getAllBlogs,
     getBlogById
-} = require('../controllers/blogController');
+} = require('../controllers/AadharBlogcontroller');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // Public routes

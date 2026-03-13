@@ -88,4 +88,4 @@ blogSchema.index({
     tags: 'text'
 });
 
-module.exports = mongoose.model('Blog', blogSchema);
+module.exports = mongoose.model('AadharBlog', blogSchema);
