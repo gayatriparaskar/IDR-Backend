@@ -17,7 +17,10 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // Public routes
 router.route('/')
     // .get(getBlogs)
-router.post('/',upload.single('featuredImage'),createBlog);
+router.post('/',upload.fields([
+  { name: "featuredImage", maxCount: 1 },// 👈 ADD THIS
+{ name: 'contentImages', maxCount: 20 } // ✅ ADD THIS
+]),createBlog);
 router.get('/allBlogs', getAllBlogs);
 router.get('/getById/:id', getBlogById);
 
@@ -26,7 +29,11 @@ router.get('/tags', getBlogTags);
 
 router.route('/:slug')
 router.get('/getBlogBySlug/:slug',getBlogBySlug)
-router.put('/updateBlog/:id',upload.single('featuredImage'),updateBlog);
+router.put('/updateBlog/:id',upload.fields([
+  { name: "featuredImage", maxCount: 1 },
+  { name: "contentImages", maxCount: 20 },
+  { name: "image", maxCount: 20 }
+]),updateBlog);
     // .put(protect, admin, updateBlog)
 router.delete('/deleteBlog/:id',deleteBlog);
 

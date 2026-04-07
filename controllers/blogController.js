@@ -24,6 +24,8 @@ exports.createBlog = asyncHandler(async (req, res) => {
         readingTime
     } = req.body;
      console.log(title,"blog title");
+     console.log("Files received:", req.files);
+     console.log("Content array:", content);
      
     // Validate required fields
     if (!title || typeof title !== 'string' || title.trim() === '') {
@@ -32,21 +34,64 @@ exports.createBlog = asyncHandler(async (req, res) => {
     }
 
     // Handle content - check if it's structured or simple
-    let contentArray = [];
-    if (Array.isArray(content)) {
-        // Structured content with headings
-        contentArray = content;
-    } else if (typeof content === 'string') {
-        // Simple content - convert to structured format
-        contentArray = [{
-            heading: "Main Content",
-            content: content,
-            order: 0
-        }];
-    } else {
+let contentArray = [];
+
+if (Array.isArray(content)) {
+    contentArray = content.map((item, index) => ({
+        heading: item.heading || `Section ${index + 1}`,
+        content: item.content || '',
+        image: item.image || '',
+        order: item.order ?? index
+    }));
+} 
+else if (typeof content === 'string') {
+    try {
+        const parsed = JSON.parse(content);
+
+        if (Array.isArray(parsed)) {
+            contentArray = parsed.map((item, index) => ({
+                heading: item.heading || `Section ${index + 1}`,
+                content: item.content || '',
+                image: '',
+                order: item.order ?? index
+            }));
+        } else {
+            throw new Error();
+        }
+    } catch (err) {
         res.status(400);
-        throw new Error('Please provide valid content');
+        throw new Error('Invalid content format');
     }
+}
+else {
+    res.status(400);
+    throw new Error('Please provide valid content');
+}
+
+
+// ✅ 2. 👇 YAHI ADD KARNA HAI (IMPORTANT)
+if (req.files && req.files.contentImages) {  
+    contentArray = contentArray.map((item, index) => ({  
+        ...item,  
+        image: req.files.contentImages[index]  
+            ? `/uploads/${req.files.contentImages[index].filename}`  
+            : item.image || ''  
+    }));  
+}
+
+// Also handle individual content images sent as 'image' field
+// if (req.files && req.files.image) {
+//     contentArray = contentArray.map((item, index) => {
+//         const imageFile = req.files.image.find((file, fileIndex) => fileIndex === index);
+//         if (imageFile) {
+//             return {
+//                 ...item,
+//                 image: `/uploads/${imageFile.filename}`
+//             };
+//         }
+//         return item;
+//     });
+// }
 
     // Generate slug from title
     const slug = slugify(title.trim(), { 
@@ -63,10 +108,14 @@ exports.createBlog = asyncHandler(async (req, res) => {
             : tags.split(',').map(tag => tag.trim());
     }
 
-    // Handle featuredImage (if it's a file upload, it will be in req.file or req.files)
+    // Handle featuredImage from uploaded files
     let featuredImageUrl = '';
-    if (req.file) {
-        // If using file upload middleware
+    
+    // Handle featuredImage from req.files (for upload.fields)
+    if (req.files && req.files.featuredImage && req.files.featuredImage.length > 0) {
+        featuredImageUrl = `/uploads/${req.files.featuredImage[0].filename}`;
+    } else if (req.file) {
+        // Fallback for upload.single
         featuredImageUrl = `/uploads/${req.file.filename}`;
     } else if (featuredImage && typeof featuredImage === 'string') {
         // If using direct URL
@@ -78,6 +127,9 @@ exports.createBlog = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('Please provide a featured image');
     }
+
+    console.log("req.body", req.body);
+    console.log("req.files", req.files);
 
     const blog = await Blog.create({
         title: title.trim(),
@@ -206,7 +258,20 @@ exports.updateBlog = asyncHandler(async (req, res) => {
 
     // Handle file upload if a new image is provided
     let featuredImage = blog.featuredImage;
-    if (req.file) {
+    
+    // Handle featuredImage from req.files (for upload.fields)
+    if (req.files && req.files.featuredImage && req.files.featuredImage.length > 0) {
+        // Delete old image if it exists
+        if (blog.featuredImage) {
+            const oldImagePath = path.join(__dirname, '..', blog.featuredImage);
+            if (fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);
+            }
+        }
+        // Set new image path
+        featuredImage = `/uploads/${req.files.featuredImage[0].filename}`;
+    } else if (req.file) {
+        // Fallback for upload.single
         // Delete old image if it exists
         if (blog.featuredImage) {
             const oldImagePath = path.join(__dirname, '..', blog.featuredImage);
@@ -253,6 +318,30 @@ exports.updateBlog = asyncHandler(async (req, res) => {
             // Handle case where content comes as object (not string)
             contentArray = Array.isArray(content) ? content : [];
         }
+    }
+
+    // Handle content images if uploaded (for update)
+    if (req.files && req.files.contentImages) {  
+        contentArray = contentArray.map((item, index) => ({  
+            ...item,  
+            image: req.files.contentImages[index]  
+                ? `/uploads/${req.files.contentImages[index].filename}`  
+                : item.image || ''  
+        }));  
+    }
+
+    // Also handle individual content images sent as 'image' field (for update)
+    if (req.files && req.files.image) {
+        contentArray = contentArray.map((item, index) => {
+            const imageFile = req.files.image.find((file, fileIndex) => fileIndex === index);
+            if (imageFile) {
+                return {
+                    ...item,
+                    image: `/uploads/${imageFile.filename}`
+                };
+            }
+            return item;
+        });
     }
 
     // Create update object

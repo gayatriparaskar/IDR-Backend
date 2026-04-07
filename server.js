@@ -15,6 +15,7 @@ const authRoutes = require('./routes/authRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 const aadharBlogRoutes = require('./routes/AadharBlogRoutes');
 const eSignRoutes = require('./routes/eSignRoutes');
+const leadRoutes = require('./routes/leadRoutes');
 // Initialize Express app
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/aadharBlog',aadharBlogRoutes);
 app.use('/api/e-sign', eSignRoutes);
+app.use('/api/leads', leadRoutes);
 
 // Serve frontend
 app.get('*', (req, res) => {
