@@ -36,6 +36,10 @@ exports.createBlog = asyncHandler(async (req, res) => {
     // Handle content - check if it's structured or simple
 let contentArray = [];
 
+console.log("Content type:", typeof content);
+console.log("Is array:", Array.isArray(content));
+console.log("Content value:", content);
+
 if (Array.isArray(content)) {
     contentArray = content.map((item, index) => ({
         heading: item.heading || `Section ${index + 1}`,
@@ -47,14 +51,19 @@ if (Array.isArray(content)) {
 else if (typeof content === 'string') {
     try {
         const parsed = JSON.parse(content);
+        console.log("Parsed content:", parsed);
 
         if (Array.isArray(parsed)) {
             contentArray = parsed.map((item, index) => ({
                 heading: item.heading || `Section ${index + 1}`,
                 content: item.content || '',
-                image: '',
+                image: item.image || '',
                 order: item.order ?? index
             }));
+        } else if (typeof parsed === 'object' && parsed !== null) {
+            // If it's a single object, wrap it in an array
+            console.log("Wrapping single object in array");
+            contentArray = [parsed];
         } else {
             throw new Error();
         }
@@ -63,11 +72,16 @@ else if (typeof content === 'string') {
         throw new Error('Invalid content format');
     }
 }
-else {
-    res.status(400);
-    throw new Error('Please provide valid content');
+else if (typeof content === 'object' && content !== null) {
+    // Handle case where content comes as object (not string)
+    if (Array.isArray(content)) {
+        contentArray = content;
+    } else {
+        // If it's a single object, wrap it in an array
+        console.log("Content is object, wrapping in array");
+        contentArray = [content];
+    }
 }
-
 
 // ✅ 2. 👇 YAHI ADD KARNA HAI (IMPORTANT)
 if (req.files && req.files.contentImages) {  
@@ -80,18 +94,18 @@ if (req.files && req.files.contentImages) {
 }
 
 // Also handle individual content images sent as 'image' field
-// if (req.files && req.files.image) {
-//     contentArray = contentArray.map((item, index) => {
-//         const imageFile = req.files.image.find((file, fileIndex) => fileIndex === index);
-//         if (imageFile) {
-//             return {
-//                 ...item,
-//                 image: `/uploads/${imageFile.filename}`
-//             };
-//         }
-//         return item;
-//     });
-// }
+if (req.files && req.files.image) {
+    contentArray = contentArray.map((item, index) => {
+        const imageFile = req.files.image.find((file, fileIndex) => fileIndex === index);
+        if (imageFile) {
+            return {
+                ...item,
+                image: `/uploads/${imageFile.filename}`
+            };
+        }
+        return item;
+    });
+}
 
     // Generate slug from title
     const slug = slugify(title.trim(), { 
@@ -298,6 +312,9 @@ exports.updateBlog = asyncHandler(async (req, res) => {
                 const parsed = JSON.parse(content);
                 if (Array.isArray(parsed)) {
                     contentArray = parsed;
+                } else if (typeof parsed === 'object' && parsed !== null) {
+                    // If it's a single object, wrap it in an array
+                    contentArray = [parsed];
                 } else {
                     // Simple content - convert to structured format
                     contentArray = [{
@@ -316,7 +333,12 @@ exports.updateBlog = asyncHandler(async (req, res) => {
             }
         } else if (typeof content === 'object' && content !== null) {
             // Handle case where content comes as object (not string)
-            contentArray = Array.isArray(content) ? content : [];
+            if (Array.isArray(content)) {
+                contentArray = content;
+            } else {
+                // If it's a single object, wrap it in an array
+                contentArray = [content];
+            }
         }
     }
 
