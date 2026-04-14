@@ -54,7 +54,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/aadharBlog',aadharBlogRoutes);
-app.use('/api/e-sign', eSignRoutes);
+app.use('/api/e-sign', eSignRoutes); 
 app.use('/api/leads', leadRoutes);
 
 // Serve frontend

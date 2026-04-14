@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { check } = require('express-validator');
 const multer = require('multer');
-const path = require('fs');
+const path = require('path');
+const fs = require('fs');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const {
     createProperty,
@@ -53,24 +54,18 @@ const upload = multer({
 
 // Validation middleware
 const validateProperty = [
-    check('title', 'Title is required').not().isEmpty().trim().escape(),
+    check('name', 'Property name is required').not().isEmpty().trim().escape(),
     check('description', 'Description is required').not().isEmpty().trim().escape(),
-    check('propertyType', 'Property type is required').isIn(['Residential', 'Commercial', 'Industrial', 'Land', 'Other']),
-    check('status', 'Status is required').isIn(['For Sale', 'For Rent', 'Sold', 'Rented']),
-    check('price', 'Price is required and must be a number').isNumeric(),
-    check('priceSuffix', 'Price suffix is required').isIn(['month', 'week', 'day', 'sqft', 'total']),
-    check('area.value', 'Area value is required').isNumeric(),
-    check('area.unit', 'Area unit is required').isIn(['sqft', 'sqm', 'marla', 'kanal', 'acre', 'hectare']),
-    check('bedrooms', 'Bedrooms must be a number').optional().isInt({ min: 0 }),
-    check('bathrooms', 'Bathrooms must be a number').optional().isInt({ min: 0 }),
-    check('garages', 'Garages must be a number').optional().isInt({ min: 0 }),
-    check('yearBuilt', 'Year built must be a valid year').optional().isInt({ min: 1000, max: new Date().getFullYear() + 1 }),
     check('address', 'Address is required').not().isEmpty(),
-    check('features', 'Features must be an array').optional().isArray(),
-    check('floorPlans', 'Floor plans must be an array').optional().isArray(),
-    check('videoTour', 'Video tour must be a valid URL').optional().isURL(),
-    check('virtualTour', 'Virtual tour must be a valid URL').optional().isURL(),
-    check('isFeatured', 'isFeatured must be a boolean').optional().isBoolean()
+    check('features', 'Features must be an array').optional().custom((value) => {
+        if (!value) return true;
+        try {
+            const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+            return Array.isArray(parsed);
+        } catch {
+            return false;
+        }
+    })
 ];
 
 // Public routes

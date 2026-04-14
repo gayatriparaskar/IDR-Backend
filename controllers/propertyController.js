@@ -25,17 +25,14 @@ exports.createProperty = async (req, res, next) => {
         }
 
         const {
-            title, description, propertyType, status, price, priceSuffix,
-            area, bedrooms, bathrooms, garages, yearBuilt, address,
-            features, floorPlans, videoTour, virtualTour, isFeatured
+            name, description, address, features
         } = req.body;
 
         // Parse JSON fields
         const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
         const featuresArray = features ? (typeof features === 'string' ? JSON.parse(features) : features) : [];
-        const floorPlansArray = floorPlans ? (typeof floorPlans === 'string' ? JSON.parse(floorPlans) : floorPlans) : [];
 
-        // Handle file uploads
+        // Handle multiple file uploads
         const images = [];
         if (req.files && req.files.length > 0) {
             req.files.forEach((file, index) => {
@@ -48,29 +45,15 @@ exports.createProperty = async (req, res, next) => {
 
         // Create property
         const property = await Property.create({
-            title,
+            name,
             description,
-            propertyType,
-            status,
-            price,
-            priceSuffix,
-            area: typeof area === 'string' ? JSON.parse(area) : area,
-            bedrooms,
-            bathrooms,
-            garages,
-            yearBuilt,
-            address: addressObj,
-            features: featuresArray,
-            floorPlans: floorPlansArray,
-            videoTour,
-            virtualTour,
-            isFeatured,
             images,
-            createdBy: req.user.id
+            address: addressObj,
+            features: featuresArray
         });
 
-        const createdProperty = await Property.findById(property._id).populate('createdBy', 'name email');
-
+        const createdProperty = await Property.findById(property._id);
+         console.log(createdProperty,"Create")
         res.status(201).json({
             success: true,
             data: createdProperty
@@ -96,43 +79,13 @@ exports.getProperties = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 12;
-        const { 
-            search, propertyType, status, minPrice, maxPrice, 
-            bedrooms, bathrooms, city, featured 
-        } = req.query;
+        const { search, city } = req.query;
 
         const query = {};
 
-        // Search by title or description
+        // Search by name or description
         if (search) {
             query.$text = { $search: search };
-        }
-
-        // Filter by property type
-        if (propertyType) {
-            query.propertyType = propertyType;
-        }
-
-        // Filter by status
-        if (status) {
-            query.status = status;
-        }
-
-        // Price range filter
-        if (minPrice || maxPrice) {
-            query.price = {};
-            if (minPrice) query.price.$gte = Number(minPrice);
-            if (maxPrice) query.price.$lte = Number(maxPrice);
-        }
-
-        // Bedrooms filter
-        if (bedrooms) {
-            query.bedrooms = { $gte: Number(bedrooms) };
-        }
-
-        // Bathrooms filter
-        if (bathrooms) {
-            query.bathrooms = { $gte: Number(bathrooms) };
         }
 
         // City filter
@@ -140,16 +93,28 @@ exports.getProperties = async (req, res, next) => {
             query['address.city'] = new RegExp(city, 'i');
         }
 
-        // Featured filter
-        if (featured === 'true') {
-            query.isFeatured = true;
-        }
+        const skip = (page - 1) * limit;
 
-        const result = await Property.getPaginatedProperties(query, page, limit);
+        const [properties, total] = await Promise.all([
+            Property.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Property.countDocuments(query)
+        ]);
+
+        const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
             success: true,
-            ...result
+            properties,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages
+            }
         });
 
     } catch (error) {
@@ -162,12 +127,7 @@ exports.getProperties = async (req, res, next) => {
 // @access  Public
 exports.getProperty = async (req, res, next) => {
     try {
-        const property = await Property.findOne({
-            $or: [
-                { _id: req.params.id },
-                { slug: req.params.id }
-            ]
-        }).populate('createdBy', 'name email phone');
+        const property = await Property.findById(req.params.id);
 
         if (!property) {
             return res.status(404).json({
