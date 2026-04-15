@@ -32,9 +32,28 @@ exports.createProperty = async (req, res, next) => {
         const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
         const featuresArray = features ? (typeof features === 'string' ? JSON.parse(features) : features) : [];
 
-        // Handle multiple file uploads
+        // Handle file uploads - support both formats
         const images = [];
-        if (req.files && req.files.length > 0) {
+        
+        // Handle frontend format: imageFeatured_0, imageFeatured_1, etc.
+        if (req.files) {
+            // Find all image files and their featured status
+            const imageFiles = Object.keys(req.files).filter(key => key.startsWith('imageFeatured_'));
+            
+            imageFiles.forEach((key, index) => {
+                const file = req.files[key];
+                if (file && file.length > 0) {
+                    const featuredStatus = key.includes('_0') ? true : false;
+                    images.push({
+                        url: `/uploads/properties/${file[0].filename}`,
+                        isFeatured: featuredStatus
+                    });
+                }
+            });
+        }
+
+        // Fallback to standard format if no files found
+        if (images.length === 0 && req.files && req.files.length > 0) {
             req.files.forEach((file, index) => {
                 images.push({
                     url: `/uploads/properties/${file.filename}`,
@@ -182,43 +201,67 @@ exports.updateProperty = async (req, res, next) => {
             });
         }
 
-        // Handle file uploads
-        const newImages = [...property.images];
-        if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                newImages.push({
-                    url: `/uploads/properties/${file.filename}`,
-                    isFeatured: false
-                });
-            });
-        }
-
         // Update property
         const {
-            title, description, propertyType, status, price, priceSuffix,
-            area, bedrooms, bathrooms, garages, yearBuilt, address,
-            features, floorPlans, videoTour, virtualTour, isFeatured,
+            name, description, status, address, features,
+            deletedImages, // Array of image URLs to delete
             featuredImageIndex
         } = req.body;
 
+        // Parse JSON fields
+        const addressObj = address ? (typeof address === 'string' ? JSON.parse(address) : address) : property.address;
+        const featuresArray = features ? (typeof features === 'string' ? JSON.parse(features) : features) : property.features;
+
+        // Handle image deletions
+        let newImages = [...property.images];
+        if (deletedImages) {
+            const imagesToDelete = typeof deletedImages === 'string' ? JSON.parse(deletedImages) : deletedImages;
+            
+            // Delete files from filesystem
+            imagesToDelete.forEach(imageUrl => {
+                const imagePath = path.join(__dirname, '..', 'public', imageUrl);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                }
+            });
+            
+            // Remove from images array
+            newImages = newImages.filter(img => !imagesToDelete.includes(img.url));
+        }
+
+        // Handle new file uploads - support both formats
+        if (req.files) {
+            // Handle frontend format: imageFeatured_0, imageFeatured_1, etc.
+            const imageFiles = Object.keys(req.files).filter(key => key.startsWith('imageFeatured_'));
+            
+            imageFiles.forEach((key, index) => {
+                const file = req.files[key];
+                if (file && file.length > 0) {
+                    const featuredStatus = key.includes('_0') ? true : false;
+                    newImages.push({
+                        url: `/uploads/properties/${file[0].filename}`,
+                        isFeatured: featuredStatus
+                    });
+                }
+            });
+            
+            // Fallback to standard format if no files found
+            if (imageFiles.length === 0 && req.files.length > 0) {
+                req.files.forEach((file, index) => {
+                    newImages.push({
+                        url: `/uploads/properties/${file.filename}`,
+                        isFeatured: false
+                    });
+                });
+            }
+        }
+
         // Update fields
-        if (title) property.title = title;
+        if (name) property.name = name;
         if (description) property.description = description;
-        if (propertyType) property.propertyType = propertyType;
         if (status) property.status = status;
-        if (price) property.price = price;
-        if (priceSuffix) property.priceSuffix = priceSuffix;
-        if (area) property.area = typeof area === 'string' ? JSON.parse(area) : area;
-        if (bedrooms) property.bedrooms = bedrooms;
-        if (bathrooms) property.bathrooms = bathrooms;
-        if (garages) property.garages = garages;
-        if (yearBuilt) property.yearBuilt = yearBuilt;
-        if (address) property.address = typeof address === 'string' ? JSON.parse(address) : address;
-        if (features) property.features = typeof features === 'string' ? JSON.parse(features) : features;
-        if (floorPlans) property.floorPlans = typeof floorPlans === 'string' ? JSON.parse(floorPlans) : floorPlans;
-        if (videoTour) property.videoTour = videoTour;
-        if (virtualTour) property.virtualTour = virtualTour;
-        if (isFeatured !== undefined) property.isFeatured = isFeatured;
+        if (address) property.address = addressObj;
+        if (features) property.features = featuresArray;
 
         // Update featured image if specified
         if (featuredImageIndex !== undefined && newImages[featuredImageIndex]) {
@@ -230,7 +273,7 @@ exports.updateProperty = async (req, res, next) => {
         property.images = newImages;
         await property.save();
 
-        const updatedProperty = await Property.findById(property._id).populate('createdBy', 'name email');
+        const updatedProperty = await Property.findById(property._id);
 
         res.status(200).json({
             success: true,

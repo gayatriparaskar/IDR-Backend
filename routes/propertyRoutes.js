@@ -82,14 +82,38 @@ router.get('/:id', getProperty);
 
 router.post(
     '/', 
-    upload.array('images', 20),
+    upload.fields([
+        { name: "images", maxCount: 20 },
+        { name: "imageFeatured_0", maxCount: 1 },
+        { name: "imageFeatured_1", maxCount: 1 },
+        { name: "imageFeatured_2", maxCount: 1 },
+        { name: "imageFeatured_3", maxCount: 1 },
+        { name: "imageFeatured_4", maxCount: 1 },
+        { name: "imageFeatured_5", maxCount: 1 },
+        { name: "imageFeatured_6", maxCount: 1 },
+        { name: "imageFeatured_7", maxCount: 1 },
+        { name: "imageFeatured_8", maxCount: 1 },
+        { name: "imageFeatured_9", maxCount: 1 }
+    ]),
     validateProperty,
     createProperty
 );
 
 router.put(
     '/:id',
-    upload.array('images', 20),
+    upload.fields([
+        { name: "images", maxCount: 20 },
+        { name: "imageFeatured_0", maxCount: 1 },
+        { name: "imageFeatured_1", maxCount: 1 },
+        { name: "imageFeatured_2", maxCount: 1 },
+        { name: "imageFeatured_3", maxCount: 1 },
+        { name: "imageFeatured_4", maxCount: 1 },
+        { name: "imageFeatured_5", maxCount: 1 },
+        { name: "imageFeatured_6", maxCount: 1 },
+        { name: "imageFeatured_7", maxCount: 1 },
+        { name: "imageFeatured_8", maxCount: 1 },
+        { name: "imageFeatured_9", maxCount: 1 }
+    ]),
     validateProperty,
     updateProperty
 );
