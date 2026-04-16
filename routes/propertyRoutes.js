@@ -56,6 +56,7 @@ const upload = multer({
 const validateProperty = [
     check('name', 'Property name is required').not().isEmpty().trim().escape(),
     check('description', 'Description is required').not().isEmpty().trim().escape(),
+    check('category', 'Property category is required').not().isEmpty().trim().escape(),
     check('address', 'Address is required').not().isEmpty(),
     check('features', 'Features must be an array').optional().custom((value) => {
         if (!value) return true;

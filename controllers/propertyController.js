@@ -12,11 +12,13 @@ exports.createProperty = async (req, res, next) => {
         if (!errors.isEmpty()) {
             // Remove uploaded files if validation fails
             if (req.files) {
-                req.files.forEach(file => {
+                Object.values(req.files).forEach(fileArray => {
+                fileArray.forEach(file => {
                     if (fs.existsSync(file.path)) {
                         fs.unlinkSync(file.path);
                     }
                 });
+            });
             }
             return res.status(400).json({
                 success: false,
@@ -25,7 +27,7 @@ exports.createProperty = async (req, res, next) => {
         }
 
         const {
-            name, description, address, features
+            name, description, address, features, category
         } = req.body;
 
         // Parse JSON fields
@@ -68,7 +70,8 @@ exports.createProperty = async (req, res, next) => {
             description,
             images,
             address: addressObj,
-            features: featuresArray
+            features: featuresArray,
+            category
         });
 
         const createdProperty = await Property.findById(property._id);
@@ -81,10 +84,12 @@ exports.createProperty = async (req, res, next) => {
     } catch (error) {
         // Clean up uploaded files if error occurs
         if (req.files) {
-            req.files.forEach(file => {
-                if (fs.existsSync(file.path)) {
-                    fs.unlinkSync(file.path);
-                }
+            Object.values(req.files).forEach(fileArray => {
+                fileArray.forEach(file => {
+                    if (fs.existsSync(file.path)) {
+                        fs.unlinkSync(file.path);
+                    }
+                });
             });
         }
         next(error);
@@ -173,11 +178,13 @@ exports.updateProperty = async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             if (req.files) {
-                req.files.forEach(file => {
+                Object.values(req.files).forEach(fileArray => {
+                fileArray.forEach(file => {
                     if (fs.existsSync(file.path)) {
                         fs.unlinkSync(file.path);
                     }
                 });
+            });
             }
             return res.status(400).json({
                 success: false,
@@ -189,11 +196,13 @@ exports.updateProperty = async (req, res, next) => {
 
         if (!property) {
             if (req.files) {
-                req.files.forEach(file => {
+                Object.values(req.files).forEach(fileArray => {
+                fileArray.forEach(file => {
                     if (fs.existsSync(file.path)) {
                         fs.unlinkSync(file.path);
                     }
                 });
+            });
             }
             return res.status(404).json({
                 success: false,
@@ -205,7 +214,7 @@ exports.updateProperty = async (req, res, next) => {
         const {
             name, description, status, address, features,
             deletedImages, // Array of image URLs to delete
-            featuredImageIndex
+            featuredImageIndex,category
         } = req.body;
 
         // Parse JSON fields
@@ -259,6 +268,7 @@ exports.updateProperty = async (req, res, next) => {
         // Update fields
         if (name) property.name = name;
         if (description) property.description = description;
+        if (category) property.category = category;
         if (status) property.status = status;
         if (address) property.address = addressObj;
         if (features) property.features = featuresArray;
@@ -283,10 +293,12 @@ exports.updateProperty = async (req, res, next) => {
     } catch (error) {
         // Clean up uploaded files if error occurs
         if (req.files) {
-            req.files.forEach(file => {
-                if (fs.existsSync(file.path)) {
-                    fs.unlinkSync(file.path);
-                }
+            Object.values(req.files).forEach(fileArray => {
+                fileArray.forEach(file => {
+                    if (fs.existsSync(file.path)) {
+                        fs.unlinkSync(file.path);
+                    }
+                });
             });
         }
         next(error);

@@ -15,6 +15,11 @@ const propertySchema = new mongoose.Schema({
         required: [true, 'Property description is required'],
         trim: true
     },
+    category: {
+        type: String,
+        required: [true, 'Property category is required'],
+        trim: true
+    },
     status: {
         type: String,
         enum: ['draft', 'coming soon', 'live'],
