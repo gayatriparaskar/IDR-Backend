@@ -5,7 +5,8 @@ exports.createQueryValidation = [
     check('email', 'Please include a valid email').isEmail().normalizeEmail(),
     check('phone', 'Please include a valid phone number').optional().isMobilePhone(),
     // check('subject', 'Subject is required').not().isEmpty().trim().escape(),
-    check('message', 'Message is required').not().isEmpty().trim().escape()
+    check('message', 'Message is required').not().isEmpty().trim().escape(),
+    check('queryFrom', 'Query source is required').not().isEmpty().isIn(['IDR', 'Aadhar Asset'])
 ];
 
 exports.updateStatusValidation = [
