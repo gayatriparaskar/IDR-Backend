@@ -16,7 +16,7 @@ const {
 // Public routes
 router.route('/')
     .get(getAllContent)
-    .post(upload.single('thumbnail'), createContent);
+    .post(upload.single('image'), createContent);
 
 router.get('/getById/:id', getContentById);
 router.get('/type/:contentType', getContentByType);
@@ -27,7 +27,7 @@ router.get('/trending', getTrendingContent);
 router.get('/:slug', getContentBySlug);
 
 // Protected/Admin routes
-router.put('/:id', upload.single('thumbnail'), updateContent);
+router.put('/:id', upload.single('image'), updateContent);
 router.delete('/:id', deleteContent);
 
 module.exports = router;

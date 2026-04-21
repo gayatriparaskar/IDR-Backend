@@ -4,6 +4,10 @@ const asyncHandler = require('express-async-handler');
 const { protect, admin } = require('../middleware/authMiddleware');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Property = require('../models/Property');
+const Query = require('../models/Query');
+const Blog = require('../models/blogModal');
+const TeamMembers = require('../models/TeamMembers');
 
 // @desc    Create a new user
 // @route   POST /api/users
@@ -230,9 +234,6 @@ exports.updateUserRole = asyncHandler(async (req, res) => {
 // @route   GET /api/users/dashboard/stats
 // @access  Private/Admin
 exports.getDashboardStats = asyncHandler(async (req, res) => {
-    const Property = require('../models/Property');
-    const Query = require('../models/Query');
-    const Blog = require('../models/blogModal');
     
     const [
         totalUsers,
@@ -255,6 +256,7 @@ exports.getDashboardStats = asyncHandler(async (req, res) => {
         Property.countDocuments(),
         Query.countDocuments(),
         Blog.countDocuments(),
+        TeamMembers.countDocuments(),
         userModal.countDocuments({ role: { $in: ['admin', 'team'] } })
     ]);
 
